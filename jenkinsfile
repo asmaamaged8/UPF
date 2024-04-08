@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     // Retrieve Dockerhub credentials from Jenkins
-                    withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
+                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
                         // Log in to Dockerhub
                         sh "docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}"
                     }
@@ -71,8 +71,7 @@ pipeline {
         always {
             // Archiving Test Result
             archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
-            sh 'docker rmi abodiaa/5g-amf:latest'
-            sh 'docker rmi abodiaa/amf-base:latest'
+            sh 'docker rmi asmaamaged/5g-upf:latest'
         }
     }
 }
