@@ -26,9 +26,7 @@ pipeline {
         }
         stage('Pulling base image from Dockerhub') {
             steps {
-                sh 'docker pull free5gc/base'
-                sh 'free5gc/upf-base:latest'
-                sh 'bitnami/minideb:bullseye'
+                sh 'docker pull 5ggraduationproject/upf-base'
             }
         }
         stage('docker build') {
@@ -72,6 +70,8 @@ pipeline {
             // Archiving Test Result
             archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
             sh 'docker rmi asmaamaged/5g-upf:latest'
+            sh 'docker rmi 5ggraduationproject/upf-base'
+
         }
     }
 }
