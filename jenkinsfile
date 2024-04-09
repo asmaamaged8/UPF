@@ -1,77 +1,77 @@
 pipeline {
     agent any
     triggers {
-    githubPush()
-  }
+        githubPush()
+    }
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
-        }
-
+        
+    }
     stages {
         stage('Verify Branch') {
             steps {
                 echo "$GIT_BRANCH"
             }
         }
-
         stage('Login to Dockerhub') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                script {
+                    // Retrieve Dockerhub credentials from Jenkins
+                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
+                        // Log in to Dockerhub
+                        sh "docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}"
+                    }
+                }
             }
         }
-
         stage('Pulling base image from Dockerhub') {
             steps {
-                    sh 'docker pull 5ggraduationproject/upf-base'
+                sh 'docker pull free5gc/base'
+                sh 'free5gc/upf-base:latest'
+                sh 'bitnami/minideb:bullseye'
             }
         }
-
         stage('docker build') {
             steps {
                 sh(script: """
                     docker images -a
-                    docker build -t 5ggraduationproject/5g-upf:latest . 
+                    docker build -t asmaamaged/5g-upf:latest . 
                     docker images -a
                 """)
             }
         }
-
         stage('Scan Image for Common Vulnerabilities and Exposures') {
             steps {
-                sh 'trivy image 5ggraduationproject/5g-upf --output trivy-report.json'
-            }
-        }
-        stage('Pushing to Dockerhub') {
-            steps {
-                sh 'docker push 5ggraduationproject/5g-upf:latest'
+                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v C:/Users/BADR/AppData/Local/Docker/wsl:/images aquasec/trivy image abodiaa/5g-amf:latest --output /images/trivy-report.json'
             }
         }
 
+        stage('Pushing to Dockerhub') {
+            steps {
+                sh 'docker push asmaamaged/5g-upf:latest'
+            }
+        }
         stage('Build and Package Helm Chart') {
             steps {
                 sh 'helm package ./helm/'
             }
         }
-
         stage('Configure Kubernetes Context') {
             steps {
-                sh 'aws eks --region us-east-1 update-kubeconfig --name 9G-Core-Net'
+                sh 'aws eks --region us-east-1 update-kubeconfig --name 5G-Core-Net'
             }
         }
-
         stage('Deploy Helm Chart on EKS') {
             steps {
-                sh 'helm upgrade --install upf ./helm/'
+                sh 'helm upgrade --install upf   ./helm/'
             }
         }
     }
-
     post {
         always {
             // Archiving Test Result
             archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
-            sh 'docker rmi 5ggraduationproject/5g-upf'
-            sh 'docker rmi 5ggraduationproject/upf-base'
+            sh 'docker rmi asmaamaged/5g-upf:latest'
         }
     }
 }
