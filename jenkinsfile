@@ -5,7 +5,7 @@ pipeline {
     }
     environment {
         DOCKERHUB_CREDENTIALS = credentials('docker')
-        
+       
     }
     stages {
         stage('Verify Branch') {
@@ -21,6 +21,19 @@ pipeline {
                         // Log in to Dockerhub
                         sh "docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}"
                     }
+                }
+            }
+        }
+        stage('AWS Credentials') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: "aws",
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]){
+
+                    sh 'echo $AWS_ACCESS_KEY_ID'
+                    sh 'echo $AWS_SECRET_ACCESS_KEY'
                 }
             }
         }
@@ -43,7 +56,6 @@ pipeline {
                 sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v C:/Users/BADR/AppData/Local/Docker/wsl:/images aquasec/trivy image abodiaa/5g-amf:latest --output /images/trivy-report.json'
             }
         }
-
         stage('Pushing to Dockerhub') {
             steps {
                 sh 'docker push asmaamaged/5g-upf:latest'
@@ -61,7 +73,7 @@ pipeline {
         }
         stage('Deploy Helm Chart on EKS') {
             steps {
-                sh 'helm upgrade --install upf   ./helm/'
+                sh 'helm upgrade --install upf ./helm/'
             }
         }
     }
@@ -71,7 +83,6 @@ pipeline {
             archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
             sh 'docker rmi asmaamaged/5g-upf:latest'
             sh 'docker rmi 5ggraduationproject/upf-base'
-
         }
     }
 }
