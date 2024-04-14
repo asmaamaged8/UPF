@@ -53,7 +53,7 @@ pipeline {
         }
         stage('Scan Image for Common Vulnerabilities and Exposures') {
             steps {
-                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v C:/Users/BADR/AppData/Local/Docker/wsl:/images aquasec/trivy image abodiaa/5g-amf:latest --output /images/trivy-report.json'
+                sh 'trivy image asmaamaged/5g-upf --output trivy-report.json'
             }
         }
         stage('Pushing to Dockerhub') {
