@@ -58,7 +58,7 @@ pipeline {
             steps {
                 sh(script: """
                     docker images -a
-                    docker build -t asmaamaged/5g-upf:latest -f ~/Dockerfile .
+                    docker build -t asmaamaged/5g-upf:latest -f /var/jenkins_home/Dockerfile .
                     docker images -a
                 """)
             }
@@ -100,7 +100,6 @@ pipeline {
             // Archiving Test Result
             archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
             sh 'docker rmi asmaamaged/5g-upf:latest'
-            sh 'docker rmi 5ggraduationproject/upf-base'
         }
     }
 }
