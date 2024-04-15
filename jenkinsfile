@@ -51,7 +51,7 @@ pipeline {
             steps {
                 sh(script: """
                     docker images -a
-                    docker build -t asmaamaged/5g-upf:latest . 
+                    docker build -t asmaamaged/5g-upf:latest -f ~/Dockerfile .
                     docker images -a
                 """)
             }
