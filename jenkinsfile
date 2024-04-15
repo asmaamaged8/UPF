@@ -13,13 +13,8 @@ pipeline {
                 echo "$GIT_BRANCH"
             }
        }
-        
-    }
-        stage('Verify Branch') {
-            steps {
-                echo "$GIT_BRANCH"
-            }
-        }
+   }
+    
         stage('Login to Dockerhub') {
             steps {
                 script {
@@ -93,4 +88,4 @@ pipeline {
             sh 'docker rmi 5ggraduationproject/upf-base'
         }
     }
-}
+
