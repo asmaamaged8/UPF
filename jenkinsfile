@@ -5,16 +5,16 @@ pipeline {
     }
     environment {
         DOCKERHUB_CREDENTIALS = credentials('docker')
-       
+
     }
     stages {
         stage('Verify Branch') {
             steps {
                 echo "$GIT_BRANCH"
             }
-        }
+       }
         
-        }
+    }
         stage('Verify Branch') {
             steps {
                 echo "$GIT_BRANCH"
