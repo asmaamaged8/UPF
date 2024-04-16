@@ -78,7 +78,7 @@ pipeline {
 
         stage('Build and Package Helm Chart') {
             steps {
-                sh 'helm package ./helm/'
+                sh 'helm package .'
             }
         }
 
@@ -90,7 +90,7 @@ pipeline {
 
         stage('Deploy Helm Chart on EKS') {
             steps {
-                sh 'helm upgrade --install upf ./helm/'
+                sh 'helm upgrade --install upf ./'
             }
         }
     }
