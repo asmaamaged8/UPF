@@ -78,7 +78,7 @@ pipeline {
 
         stage('Build and Package Helm Chart') {
             steps {
-                sh 'helm package ./hem-upf/'
+                sh 'helm package ./helm-upf/'
             }
         }
 
